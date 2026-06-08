@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/app.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-icon">⬡</span>
+        <span class="brand-name">TaskFlow</span>
+        <span class="brand-badge" id="envBadge">dev</span>
+      </div>
+      <nav class="header-nav">
+        <button class="btn-icon" id="statsToggle" title="Estatísticas">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </button>
+        <a href="/metrics" target="_blank" class="btn-icon" title="Métricas Prometheus">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        </a>
+        <a href="/health" target="_blank" class="btn-icon" title="Health Check">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Stats Panel -->
+  <div class="stats-panel" id="statsPanel" hidden>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Total</span>
+        <span class="stat-value" id="statTotal">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Pendentes</span>
+        <span class="stat-value accent-yellow" id="statPending">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Em andamento</span>
+        <span class="stat-value accent-blue" id="statProgress">—</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Concluídas</span>
+        <span class="stat-value accent-green" id="statDone">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="filters">
+        <select class="select" id="filterStatus">
+          <option value="">Todos status</option>
+          <option value="pending">Pendente</option>
+          <option value="in_progress">Em andamento</option>
+          <option value="done">Concluída</option>
+        </select>
+        <select class="select" id="filterPriority">
+          <option value="">Todas prioridades</option>
+          <option value="high">Alta</option>
+          <option value="medium">Média</option>
+          <option value="low">Baixa</option>
+        </select>
+      </div>
+      <button class="btn-primary" id="newTaskBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova Tarefa
+      </button>
+    </div>
+
+    <!-- Task List -->
+    <div id="taskList" class="task-list"></div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state" hidden>
+      <div class="empty-icon">◎</div>
+      <p class="empty-title">Nenhuma tarefa encontrada</p>
+      <p class="empty-sub">Crie sua primeira tarefa clicando no botão acima.</p>
+    </div>
+
+    <!-- Loading -->
+    <div id="loadingState" class="loading-state">
+      <div class="spinner"></div>
+    </div>
+
+  </main>
+
+  <!-- Modal -->
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Nova Tarefa</h2>
+        <button class="btn-icon" id="modalClose">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label class="label" for="fTitle">Título <span class="required">*</span></label>
+          <input class="input" id="fTitle" type="text" placeholder="Descreva a tarefa em poucas palavras…" maxlength="255" />
+        </div>
+        <div class="field">
+          <label class="label" for="fDescription">Descrição</label>
+          <textarea class="input textarea" id="fDescription" rows="3" placeholder="Detalhes adicionais (opcional)…"></textarea>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label class="label" for="fPriority">Prioridade</label>
+            <select class="select" id="fPriority">
+              <option value="low">Baixa</option>
+              <option value="medium" selected>Média</option>
+              <option value="high">Alta</option>
+            </select>
+          </div>
+          <div class="field" id="statusFieldWrap">
+            <label class="label" for="fStatus">Status</label>
+            <select class="select" id="fStatus">
+              <option value="pending">Pendente</option>
+              <option value="in_progress">Em andamento</option>
+              <option value="done">Concluída</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label" for="fDueDate">Prazo</label>
+          <input class="input" id="fDueDate" type="datetime-local" />
+        </div>
+        <div class="modal-error" id="modalError" hidden></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="modalCancel">Cancelar</button>
+        <button class="btn-primary" id="modalSave">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-area" id="toastArea"></div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
