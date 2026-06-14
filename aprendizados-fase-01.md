@@ -29,8 +29,8 @@ sudo docker volume create  postgres-data
 ```
 
 ## Criação do container
-### Banco de dados portgres (vinculando a rede e ao volume)
 Utilizado o mapeamento de portas do Docker com o parâmetro -p <port_host>:<port_host> ele foi utilizado para permitir conexões locais através de localhost:<port_host>.  Sem esse mapeamento, o banco e aplicação estariam acessíveis apenas dentro da rede interna do Docker.
+### Banco de dados portgres (vinculando a rede e ao volume)
 ```bash
 sudo docker container run -d -p 5432:5432 --name taskflow-db -e POSTGRES_PASSWORD=Pg#123 -e POSTGRES_USER=taskflowuser -e POSTGRES_DB=taskflow --network taskflow-network --mount type=volume,source=postgres-data,target=/var/lib/postgresql/data postgres:12.17
 ```
@@ -39,20 +39,33 @@ sudo docker container run -d -p 5432:5432 --name taskflow-db -e POSTGRES_PASSWOR
 sudo docker container run -d -p 3000:3000 --name taskflow-app -e DB_NAME=taskflow -e DB_USER=taskflowuser -e DB_PASSWORD=Pg#123 -e DB_HOST=taskflow-db --network taskflow-network thatianaliz/taskflow:01-dockerfile-manual
 ```
 ### Validação
-#### Verificar se os containers estão em execução
+#### Validar se os containers estão em execução
 ```bash
 sudo docker container ls
 ```
-#### Verificar se container do banco está usando um volume
+#### Validar se container do banco está usando um volume
 ```bash
 sudo docker ps -a --filter volume=postgres-data
 ```
+#### Validar a persistência de dados após remover o container
+```bash
+# Parar o container
+sudo docker container stop taskflow-db
+
+# Remover o container
+sudo docker container rm taskflow-db
+
+# Recriar o container com o mesmo volume
+sudo docker container run -d -p 5432:5432 --name taskflow-db -e POSTGRES_PASSWORD=Pg#123 -e POSTGRES_USER=taskflowuser -e POSTGRES_DB=taskflow --network taskflow-network --mount type=volume,source=postgres-data,target=/var/lib/postgresql/data postgres:12.17
+```
+Os dados seguiram persistindo no banco após a recriação do container, concluindo a validação do volume pois segue funcionando corretamente.
+
 #### Verificar se os containeres estão alocados na network correta
 ```bash
 sudo docker network inspect taskflow-network
 ```
 
-#Inclus
+
 
 ## Publicação no Docker Hub
 Imagem validada e sem bugs de infraestrutura. Push para o Docker Hub:
@@ -222,15 +235,16 @@ O `--no-cache` garante que todos os layers sejam reexecutados do zero,
 assegurando que os arquivos alterados sejam de fato copiados para a nova imagem.
 
 
-# Aprendizados da Fase 1
-- Construção de imagens Docker utilizando Dockerfile
-- Publicação de imagens no Docker Hub
-- Criação de redes Docker customizadas
-- Persistência de dados com volumes
-- Comunicação entre containers
-- Configuração de variáveis de ambiente
-- Execução automática de migrations
-- Troubleshooting através de logs
-- Identificação de dependências do PostgreSQL
+## Resumo de Aprendizados — Fase 1
+- **Dockerfile** — construção de imagens com boas práticas: Alpine, usuário não-root e cache de layers
+- **Docker Hub** — versionamento de imagens com tags por fase (`01-dockerfile-manual`, `latest`)
+- **Redes customizadas** — containers se comunicam pelo nome, não pelo IP
+- **Volumes** — dados persistem mesmo após remover e recriar o container
+- **Variáveis de ambiente** — configuração via `-e` no `docker run`
+- **Migrations** — devem ser executadas antes do start da aplicação via `CMD`
+- **Troubleshooting com logs** — `docker logs -f` como primeira ferramenta de diagnóstico
+- **pgcrypto** — extensão do PostgreSQL necessária para `gen_random_uuid()` em versões anteriores ao 14
+- **Cache do Docker** — `--no-cache` necessário para garantir que alterações nos arquivos sejam copiadas
+
 
 
