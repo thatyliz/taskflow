@@ -187,6 +187,41 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 Nem todas as dependências de uma aplicação estão explícitas no código-fonte ou nas variáveis de ambiente. Algumas dependências estão relacionadas ao próprio banco de dados. Ao automatizar a criação da infraestrutura através de containers, é importante garantir que todas as dependências necessárias sejam provisionadas automaticamente. Se não, a aplicação pode funcionar em um ambiente e falhar em outro devido a diferenças de configuração.
 
 
+## Modal não fechava ao salvar ou cancelar — v2
+
+**Sintoma**
+Modal de "Nova Tarefa" abria automaticamente e não fechava ao salvar ou cancelar.
+
+**Causa raiz**
+Conflito entre atributo HTML `hidden` e regras CSS com `display:flex` —
+o CSS tinha especificidade maior e sobrescrevia o `display:none` do `hidden`.
+
+**Solução**
+Como os arquivos `public/index.html` e `public/js/app.js` foram gerados
+por IA (Claude/Anthropic), a correção foi solicitada à mesma ferramenta.
+Os arquivos corrigidos foram substituídos e a imagem reconstruída.
+
+A correção substituiu o controle via atributo `hidden` por `style.display`
+direto no JS, que tem especificidade máxima e não sofre conflito com CSS externo.
+
+**Imagem corrigida**
+`thatianaliz/taskflow:01-dockerfile-manual-v2`
+
+**Lição aprendida**
+Durante a correção, o container continuava exibindo o comportamento antigo
+mesmo após substituir os arquivos. A causa foi o cache do Docker, onde a imagem
+antiga estava sendo reutilizada nos builds seguintes.
+
+A solução foi forçar o rebuild sem cache:
+```bash
+sudo docker build --no-cache -t thatianaliz/taskflow:01-dockerfile-manual-v2 \
+  -f taskflow/docker/Dockerfile .
+```
+
+O `--no-cache` garante que todos os layers sejam reexecutados do zero,
+assegurando que os arquivos alterados sejam de fato copiados para a nova imagem.
+
+
 # Aprendizados da Fase 1
 - Construção de imagens Docker utilizando Dockerfile
 - Publicação de imagens no Docker Hub
@@ -197,3 +232,5 @@ Nem todas as dependências de uma aplicação estão explícitas no código-font
 - Execução automática de migrations
 - Troubleshooting através de logs
 - Identificação de dependências do PostgreSQL
+
+
