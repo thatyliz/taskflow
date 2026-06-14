@@ -9,6 +9,8 @@ const MIGRATIONS = [
     version: 1,
     description: 'Cria tabela de tarefas e índices',
     sql: `
+      CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
       CREATE TABLE IF NOT EXISTS tasks (
         id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         title       VARCHAR(255)  NOT NULL,
