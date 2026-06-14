@@ -26,6 +26,44 @@ Cada fase constrói sobre a anterior, refletindo progressão real de conheciment
 
 ---
 
+## 📚 Documentação por Fase
+
+| Fase | Documentação |
+|------|--------------|
+| Fase 1 — Docker Manual | [aprendizados-fase-01.md](aprendizados-fase-01.md) |
+
+---
+
+## 🐳 Imagem Docker
+
+A imagem desta fase está publicada no Docker Hub. A tag `latest` sempre aponta para a versão mais recente.
+
+```bash
+
+docker pull thatianaliz/taskflow:latest
+
+```
+
+Para uma versão específica de cada fase:
+
+```bash
+
+docker pull thatianaliz/taskflow:01-dockerfile-manual
+
+```
+
+🔗 [hub.docker.com/r/thatianaliz/taskflow](https://hub.docker.com/repository/docker/thatianaliz/taskflow)
+
+---
+
+## ⚠️ Known Issues
+
+| Fase | Problema | Impacto | Previsão |
+|------|----------|---------|----------|
+| Fase 1 | Modal do frontend de "Nova Tarefa" já inicia aberto na pagina e não fecha após salvar ou cancelar | Visual — a API REST funciona corretamente | Fase 2 |
+
+---
+
 ## 📋 Sobre a Aplicação
 
 O **TaskFlow** é um sistema web de gerenciamento de tarefas desenvolvido com auxílio de IA. Foi escolhido como base do laboratório por já nascer com as características que uma aplicação precisa ter para ser bem operada em produção:
