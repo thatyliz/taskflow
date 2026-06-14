@@ -13,7 +13,7 @@ Cada fase constrói sobre a anterior, refletindo progressão real de conheciment
 | Fase | Foco | Status |
 |------|------|--------|
 | **0 — Aplicação Base** | CRUD Node.js + PostgreSQL com logs estruturados e métricas Prometheus + health checks. Baseline gerado por IA e não executado localmente, simulando onboarding de código legado/terceirizado. | ✅ Concluído |
-| **1 — Docker (Manual)** | Build da imagem Alpine, publicação no Docker Hub, criação de redes e volumes via CLI | 🔜 Próximo |
+| **1 — Docker (Manual)** | Build da imagem, publicação no Docker Hub, criação de rede, volume e containers via CLI | ✅ Concluído |
 | **2 — Docker Compose** | Orquestração multi-container, redes, volumes e variáveis de ambiente como código | 🔜 Próximo |
 | **3 — Kubernetes** | Deployments, Services, ConfigMaps, HPA, liveness e readiness probes | 🔜 Planejado |
 | **4 — GitHub Actions** | Pipeline CI/CD — build, push de imagem e deploy automatizado | 🔜 Planejado |
@@ -36,25 +36,21 @@ Cada fase constrói sobre a anterior, refletindo progressão real de conheciment
 
 ## 🐳 Imagem Docker
 
-A imagem desta fase está publicada no Docker Hub. A tag `latest` sempre aponta para a versão mais recente.
+As imagem de cada fase testará publicada no Docker Hub. A tag `latest` sempre aponta para a versão mais recente.
 
-```bash
 
-docker pull thatianaliz/taskflow:latest
-
-```
-
-Para uma versão específica de cada fase:
-
-```bash
-
-docker pull thatianaliz/taskflow:01-dockerfile-manual
-
-```
+| Tag | Descrição |
+|-----|-----------|
+| `latest` | Versão mais recente |
+| `01-dockerfile-manual-v2` | Fase 1 — correção do bug do modal |
+| `01-dockerfile-manual` | Fase 1 — build inicial |
 
 🔗 [hub.docker.com/r/thatianaliz/taskflow](https://hub.docker.com/repository/docker/thatianaliz/taskflow)
 
 ---
+
+
+
 
 ## ⚠️ Known Issues
 
